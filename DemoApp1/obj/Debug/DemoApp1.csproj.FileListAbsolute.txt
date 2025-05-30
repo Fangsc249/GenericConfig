@@ -1,0 +1,12 @@
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\DemoApp1.exe.config
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\DemoApp1.exe
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\DemoApp1.pdb
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\ConfigTool.dll
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\Newtonsoft.Json.dll
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\ConfigTool.pdb
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\Newtonsoft.Json.xml
+C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csprojAssemblyReference.cache
+C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.CoreCompileInputs.cache
+C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.CopyComplete
+C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.exe
+C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.pdb

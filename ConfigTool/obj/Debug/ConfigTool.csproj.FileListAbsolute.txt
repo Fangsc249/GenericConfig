@@ -1,0 +1,12 @@
+C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.dll
+C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.pdb
+C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\Newtonsoft.Json.dll
+C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\Newtonsoft.Json.xml
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csprojAssemblyReference.cache
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CoreCompileInputs.cache
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CopyComplete
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.dll
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.pdb
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.ConfigForm.resources
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.DynamicPanel.resources
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.GenerateResource.cache

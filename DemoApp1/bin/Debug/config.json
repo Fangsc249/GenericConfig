@@ -1,0 +1,10 @@
+{
+  "ConnectionString": "Data Source = data.db3",
+  "MaxConnections": 100,
+  "LogLevel": 0,
+  "DateTime": "2025-05-30T00:00:00+08:00",
+  "OutputFolder": "C:\\Users\\u324926\\OneDrive - Danfoss\\1 on 1 meeting",
+  "ForwarderFile": "C:\\Users\\u324926\\OneDrive - Danfoss\\Desktop\\Copy of EXPORT.xlsx",
+  "AppName": "DemoApp2",
+  "EnableLogging": true
+}
