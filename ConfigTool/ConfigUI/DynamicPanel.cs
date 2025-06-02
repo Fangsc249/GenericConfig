@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
+using Dumpify;
 
 namespace ConfigTool.ConfigUI
 {
@@ -25,10 +26,33 @@ namespace ConfigTool.ConfigUI
         public void Bind(object configObj)
         {
             _configObject = configObj;
-            GenerateControls();
+            _tabControl.TabPages.Clear();
+            //GenerateControls_SingleLevel();
+            GenerateControls_Recursive();//支持嵌套对象，Bug待排除
         }
+        private void GenerateControls_Recursive()
+        {
+            var groupedProps = _configObject.GetType().GetProperties()
+                .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null)
+                .GroupBy(p => p.GetCustomAttribute<ConfigAttribute>().Category)
+                .OrderBy(g => g.First().GetCustomAttribute<ConfigAttribute>().Order);
 
-        private void GenerateControls()
+            foreach (var group in groupedProps)
+            {
+                var tabPage = new TabPage(group.Key)
+                {
+                    Padding = new Padding(10),
+                    AutoScroll = true,
+                    BackColor = System.Drawing.Color.AliceBlue
+                };
+                _tabControl.TabPages.Add(tabPage);
+
+                // 递归生成控件
+                Console.WriteLine($"Generating for group {group.Key}");
+                GenerateControlsForObject(_configObject, tabPage, group.Key);
+            }
+        }
+        private void GenerateControls_SingleLevel()
         {
             _tabControl.TabPages.Clear();
 
@@ -77,12 +101,12 @@ namespace ConfigTool.ConfigUI
                 }
             }
         }
-
         private Control CreateControlForType(Type type, object value, PropertyInfo prop)
         {
+            //type.Dump($"{value}");
             if (type == typeof(bool))
                 return new CheckBox { Checked = (bool)(value ?? false) };
-
+            
             if (type.IsEnum)
             {
                 var cmb = new ComboBox
@@ -115,8 +139,86 @@ namespace ConfigTool.ConfigUI
             }
             return new TextBox { Text = value?.ToString() };
         }
+        private void GenerateControlsForObject(object obj, Control parentContainer, string parentCategory)
+        { // new
 
-        public void ApplyChanges()
+            var props = obj.GetType().GetProperties()
+                .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null && p.GetCustomAttribute<ConfigAttribute>().Category == parentCategory)
+                .OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order);
+            Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
+            if (props.Count() == 0)
+            {
+                obj.Dump("props.Count == 0");
+            }
+            int topPos = 20;
+            foreach (var prop in props)
+            {
+                var attr = prop.GetCustomAttribute<ConfigAttribute>();
+                //var category = parentCategory ?? attr.Category;
+                Console.WriteLine($"prop {prop.Name}-{prop.PropertyType.Name} simple? : {IsSimpleType(prop.PropertyType)}");
+                // 如果是嵌套对象（类类型）
+                if (!IsSimpleType(prop.PropertyType))
+                {
+                    var nestedObj = prop.GetValue(obj);
+                    if (nestedObj != null)
+                    {
+                        // 创建分组容器（如 GroupBox）
+                        var groupBox = new GroupBox
+                        {
+                            Text = attr.DisplayName,
+                            Left = 10,
+                            Top = topPos,
+                            Padding = new Padding(10),
+                            Width = 800,
+                        };
+                        parentContainer.Controls.Add(groupBox);
+                        // 递归生成嵌套对象的控件
+                        GenerateControlsForObject(nestedObj, groupBox, parentCategory);
+                        topPos += groupBox.Controls.Count * 30;
+                    }
+                }
+                else
+                {
+                    // 生成简单类型的控件（原有逻辑）
+
+                    var attr2 = prop.GetCustomAttribute<ConfigAttribute>();
+                    var lbl = new Label
+                    {
+                        Text = attr2.DisplayName,
+                        Top = topPos,
+                        Left = 10,
+                        Width = 150,
+                    };
+                    parentContainer.Controls.Add(lbl);
+                    //Returns the property value of a specified object.
+                    var ctl = CreateControlForType(prop.PropertyType, prop.GetValue(obj), prop);
+                    ctl.Top = topPos;
+                    ctl.Left = 170;
+                    ctl.Tag = prop;
+
+                    if (ctl is TextBox txt) ctl.Width = 200;
+                    if (ctl is TextBox && attr.DisplayName == "Connection String") ctl.Width = 600;
+                    if (ctl is ComboBox cmb) cmb.Width = 200;
+                    parentContainer.Controls.Add(ctl);
+                    if (!string.IsNullOrEmpty(attr.Description))
+                    {
+                        var toolTip = new ToolTip();
+                        toolTip.SetToolTip(lbl, attr.Description);
+                        toolTip.SetToolTip(ctl, attr.Description);
+                    }
+                    topPos += ctl.Height + 10;
+                }
+            }
+        }
+
+        private bool IsSimpleType(Type type)
+        { //new
+            return type.IsPrimitive ||
+                   type == typeof(string) ||
+                   type.IsEnum ||
+                   type == typeof(DateTime);
+        }
+        public void ApplyChanges_bk()
         {
             foreach (TabPage tabPage in _tabControl.TabPages)
             {
@@ -142,6 +244,39 @@ namespace ConfigTool.ConfigUI
             }
 
         }
+        public void ApplyChanges()
+        {
+            ApplyChangesToObject(_configObject, _tabControl);
+        }
+
+        private void ApplyChangesToObject(object obj, Control parentContainer)
+        {
+            foreach (Control ctrl in parentContainer.Controls)
+            {
+                if (ctrl is GroupBox groupBox)
+                {
+                    // 递归处理分组容器中的控件
+                    ApplyChangesToObject(obj, groupBox);
+                }
+                else if (ctrl.Tag is PropertyInfo prop)
+                {
+                    // 设置属性值（原有逻辑）
+                    object value = GetControlValue(ctrl);
+                    prop.SetValue(obj, value);
+                }
+            }
+        }
+
+        private object GetControlValue(Control ctrl)
+        {
+            if (ctrl is CheckBox cb) return cb.Checked;
+            if (ctrl is ComboBox cmb) return cmb.SelectedItem;
+            if (ctrl is NumericUpDown num) return num.Value;
+            if (ctrl is DateTimePicker dtp) return dtp.Value;
+            if (ctrl is TextBox txt) return txt.Text;
+            return null;
+        }
+
         private Control CreatePathSelector(PropertyInfo prop, string initialPath)
         {
             var panel = new Panel { Height = 20, Width = 600 };
