@@ -74,7 +74,7 @@ namespace ConfigTool.ConfigUI
             configTree.Nodes.Clear();
             _objectCache.Clear();
 
-            var rootNode = new TreeNode("配置根节点")
+            var rootNode = new TreeNode("Configuration")
             {
                 Tag = new NodeInfo { Path = _currentPath, Object = _configObject }
             };
@@ -263,6 +263,7 @@ namespace ConfigTool.ConfigUI
                         Top = topPos,
                         Left = leftPos,
                         Width = container.Width - leftPos - 25,
+                        //Width = container.Width - leftPos,
                         Height = 150
                     };
 
@@ -277,7 +278,7 @@ namespace ConfigTool.ConfigUI
 
                     group.Controls.Add(innerPanel);
                     container.Controls.Add(group);
-
+                    //container.Name.Dump();
                     topPos += group.Height + 10;
                 }
             }
@@ -316,10 +317,10 @@ namespace ConfigTool.ConfigUI
         // 辅助方法
         private bool IsSimpleType(Type type)
         {
-            return type.IsPrimitive ||
-                  type == typeof(string) ||
-                  type.IsEnum ||
-                  type == typeof(DateTime);
+            return  type.IsPrimitive ||
+                    type == typeof(string) ||
+                    type.IsEnum ||
+                    type == typeof(DateTime);
         }
 
         private bool IsCollectionType(Type type)

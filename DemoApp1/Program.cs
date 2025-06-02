@@ -11,7 +11,7 @@ namespace DemoApp1
         [STAThread]
         static void Main(string[] args)
         {
-            new DemoForm().ShowDialog();
+            new NestedConfigPanelForm().ShowDialog();
             //DynamicPanelTest();
         }
         static void DynamicPanelTest()
@@ -33,9 +33,9 @@ namespace DemoApp1
         }
     }
 
-    public class DemoForm : Form
+    public class NestedConfigPanelForm : Form
     {
-        public DemoForm()
+        public NestedConfigPanelForm()
         {
             var configService = new JsonConfigService();
             var config = configService.Load<AppConfig>("config.json");
@@ -45,7 +45,6 @@ namespace DemoApp1
                     new ServerConfig { Name = "主服务器", IP = "10.0.0.1" },
                     new ServerConfig { Name = "备份服务器", IP = "10.0.0.2" }
                 };
-
 
             var panel = new NestedConfigPanel
             {
@@ -62,7 +61,7 @@ namespace DemoApp1
 
             this.Controls.Add(panel);
             this.Controls.Add(saveButton);
-            this.Size = new Size(900, 600);
+            this.Size = new Size(1000, 600);
         }
     }
 

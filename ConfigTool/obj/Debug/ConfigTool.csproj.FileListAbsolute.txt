@@ -21,3 +21,4 @@ C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\System.Memory.xml
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\System.Numerics.Vectors.xml
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.dll.config
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csprojAssemblyReference.cache
