@@ -1,15 +1,25 @@
 {
+  "AppName": "DemoApp",
+  "EnableLogging": true,
   "ConnectionString": "",
-  "MaxConnections": 100,
+  "MaxConnections": 99,
   "LogLevel": 1,
   "DateTime": "2025-06-02T00:00:00+08:00",
   "OutputFolder": "c:\\temp",
-  "Servers": null,
+  "Servers": [
+    {
+      "Name": "主服务器000"
+    },
+    {
+      "Name": "备份服务器5555"
+    }
+  ],
   "ServerSetting": {
     "ServerAddress": "127.0.0.1",
-    "Port": "8080"
+    "Port": "8080",
+    "ServerConfig": {
+      "Name": "Database Server xxxxx"
+    }
   },
-  "ForwarderFile": "",
-  "AppName": "DemoApp",
-  "EnableLogging": true
+  "ForwarderFile": "C:\\Users\\u324926\\OneDrive - Danfoss\\Desktop\\DumpComponents.xlsx"
 }

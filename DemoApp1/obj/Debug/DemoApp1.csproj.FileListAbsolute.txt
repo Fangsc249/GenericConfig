@@ -10,15 +10,6 @@ C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.CoreCompileInputs.cac
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.CopyComplete
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.exe
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.pdb
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\Dumpify.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\Spectre.Console.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\Spectre.Console.xml
 C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\ConfigTool.dll.config
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Buffers.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Memory.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Numerics.Vectors.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Buffers.xml
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Memory.xml
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Numerics.Vectors.xml
-C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\YamlDotNet.dll
+C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\YamlDotNet.xml

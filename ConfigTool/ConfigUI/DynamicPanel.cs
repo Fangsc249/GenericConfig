@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
-using Dumpify;
+
 
 namespace ConfigTool.ConfigUI
 {
@@ -146,10 +146,7 @@ namespace ConfigTool.ConfigUI
                 .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null && p.GetCustomAttribute<ConfigAttribute>().Category == parentCategory)
                 .OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order);
             Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
-            if (props.Count() == 0)
-            {
-                obj.Dump("props.Count == 0");
-            }
+            
             int topPos = 20;
             foreach (var prop in props)
             {

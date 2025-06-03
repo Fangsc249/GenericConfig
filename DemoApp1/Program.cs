@@ -35,27 +35,22 @@ namespace DemoApp1
 
     public class NestedConfigPanelForm : Form
     {
+        IConfigService configService = new YamlConfigService();
         public NestedConfigPanelForm()
         {
-            var configService = new JsonConfigService();
-            var config = configService.Load<AppConfig>("config.json");
-
-            config.Servers = new System.Collections.Generic.List<ServerConfig>
-                {
-                    new ServerConfig { Name = "主服务器", IP = "10.0.0.1" },
-                    new ServerConfig { Name = "备份服务器", IP = "10.0.0.2" }
-                };
-
             var panel = new NestedConfigPanel
             {
                 Dock = DockStyle.Fill
             };
-            panel.Bind(config);
+            var config = configService.Load<LabelPrintingConfig>("labelPrinting.yaml");
+            panel.Bind(configService, config, "labelPrinting.yaml", "LabelPrinting");
 
             var saveButton = new Button
             {
                 Text = "保存配置",
-                Dock = DockStyle.Bottom
+                Dock = DockStyle.Bottom,
+                Height = 30,
+                BackColor = Color.SteelBlue
             };
             saveButton.Click += (s, e) => panel.ApplyChanges();
 

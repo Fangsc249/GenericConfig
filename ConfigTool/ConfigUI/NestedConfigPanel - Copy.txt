@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Collections;
 using ConfigTool.ConfigCore;
-
+using Dumpify;
 
 namespace ConfigTool.ConfigUI
 {
@@ -19,10 +19,7 @@ namespace ConfigTool.ConfigUI
         private TreeView configTree;
         private Panel configPanel;
         private object _configObject;
-        private IConfigService _configService;
-        private string _configFile;
         private string _currentPath;
-        private string _rootNodeText;
         private BindingSource _bindingSource = new BindingSource();
         private Dictionary<string, object> _objectCache = new Dictionary<string, object>();
 
@@ -34,13 +31,13 @@ namespace ConfigTool.ConfigUI
 
         private void MyInitializeComponent()
         {
-            this.Size = new Size(1100, 600);
+            this.Size = new Size(800, 600);
 
             // 分割容器
             SplitContainer splitContainer = new SplitContainer
             {
                 Dock = DockStyle.Fill,
-                SplitterDistance = 15
+                SplitterDistance = 30
             };
             this.Controls.Add(splitContainer);
 
@@ -67,15 +64,13 @@ namespace ConfigTool.ConfigUI
             splitContainer.Panel2.Controls.Add(configPanel);
         }
         //Main logic
-        public void Bind(IConfigService configService, object configObj, string configFile,string rootNodeText="Config", string configPath = "root")
+        public void Bind(object configObj, string configPath = "root")
         {
             _configObject = configObj;
-            _configService = configService;
-            _configFile = configFile;
             _currentPath = configPath;
-            _rootNodeText = rootNodeText;
             _bindingSource.DataSource = configObj;
             BuildConfigTree();
+            //LoadNodeConfiguration(configTree.Nodes[0]);
         }
         // build TreeView structure
         private void BuildConfigTree()
@@ -83,7 +78,7 @@ namespace ConfigTool.ConfigUI
             configTree.Nodes.Clear();
             _objectCache.Clear();
 
-            var rootNode = new TreeNode(_rootNodeText)
+            var rootNode = new TreeNode("Configuration")
             {
                 Tag = new NodeInfo { Path = _currentPath, Object = _configObject }
             };
@@ -340,28 +335,28 @@ namespace ConfigTool.ConfigUI
             // 处理集合类型
             if (IsCollectionType(type))
             {
-                //var bindingList = obj as IBindingList;
-                //if (bindingList != null)
-                //{
-                //    // 添加新元素按钮
-                //    var addButton = new Button
-                //    {
-                //        Text = "添加新元素-Gen",
-                //        Top = topPos,
-                //        Left = 10,
-                //        Width = 120
-                //    };
-                //    addButton.Click += (s, e) => AddCollectionElement(bindingList);
-                //    container.Controls.Add(addButton);
-                //    topPos += 40;
-                //}
+                var bindingList = obj as IBindingList;
+                if (bindingList != null)
+                {
+                    // 添加新元素按钮
+                    var addButton = new Button
+                    {
+                        Text = "添加新元素-Gen",
+                        Top = topPos,
+                        Left = 10,
+                        Width = 120
+                    };
+                    addButton.Click += (s, e) => AddCollectionElement(bindingList);
+                    container.Controls.Add(addButton);
+                    topPos += 40;
+                }
 
                 int index = 0;
                 foreach (var item in (IEnumerable)obj)
                 {
                     var group = new GroupBox
                     {
-                        Text = $"#{index + 1}",
+                        Text = $"元素 {index}",
                         Top = topPos,
                         Left = leftPos,
                         Width = container.Width - leftPos - 25,
@@ -385,8 +380,7 @@ namespace ConfigTool.ConfigUI
                         Left = group.Width - 80,
                         Width = 70
                     };
-                    int removeIndex = index;
-                    removeButton.Click += (s, e) => RemoveCollectionElement(obj, removeIndex);
+                    removeButton.Click += (s, e) => RemoveCollectionElement(obj, index);
 
                     group.Controls.Add(removeButton);
                     group.Controls.Add(innerPanel);
@@ -409,7 +403,7 @@ namespace ConfigTool.ConfigUI
                         Text = GetDisplayName(prop),
                         Top = topPos,
                         Left = leftPos,
-                        Width = 100
+                        Width = 150
                     };
 
                     var ctrl = CreateControlForType(prop, prop.GetValue(obj));
@@ -425,12 +419,11 @@ namespace ConfigTool.ConfigUI
 
                     topPos += ctrl.Height + 10;
                 }
-
+                
             }
         }
         private void AddCollectionElement(IBindingList list)
-        {   // for databinding
-            // 要在GenerateControlsForObject中使用，但是尚未启用2025-6-3
+        { // for databinding
             Type elementType = GetCollectionElementType(list.GetType());
             object newItem = CreateDefaultInstance(elementType);
             list.Add(newItem);
@@ -441,26 +434,27 @@ namespace ConfigTool.ConfigUI
             {
                 Type elementType = GetCollectionElementType(collection.GetType());
                 object newItem = CreateDefaultInstance(elementType);
+
                 list.Add(newItem);
+
                 // 刷新树形视图
                 BuildConfigTree();
+
                 // 展开父节点
                 parentNode.Expand();
+
                 // 选中新添加的元素
                 //TreeNode newNode = parentNode.Nodes[list.Count - 1];
                 configTree.SelectedNode = newItem as TreeNode;
-                LoadNodeConfiguration(configTree.SelectedNode);
             }
         }
+
         private void RemoveCollectionElement(object collection, int index)
         {
-            //collection.Dump();
-            //index.Dump();
             if (collection is IList list && index >= 0 && index < list.Count)
             {
                 list.RemoveAt(index);
                 BuildConfigTree();
-                LoadNodeConfiguration(configTree.SelectedNode);
             }
         }
 
@@ -535,15 +529,16 @@ namespace ConfigTool.ConfigUI
 
             }
 
-            return new TextBox { Text = value?.ToString(), Width = 450, };
+            return new TextBox { Text = value?.ToString() };
         }
+
         private Control CreatePathSelector(PropertyInfo prop, string initialPath)
         {
             var panel = new Panel { Height = 20, Width = 600 };
             var txtPath = new TextBox
             {
                 Text = initialPath,
-                Width = 450,
+                Width = 500,
                 Dock = DockStyle.Left,
                 Tag = prop,
             };
@@ -586,8 +581,92 @@ namespace ConfigTool.ConfigUI
 
         public void ApplyChanges()
         {
-            _configService.Save(_configFile, (ConfigBase)_configObject);
-            MessageBox.Show("Saved.");
+            //try
+            //{
+            //    // 从根节点开始应用更改
+            //    ApplyChangesToNode(configTree.Nodes[0]);
+            //    MessageBox.Show("配置已保存", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"保存配置时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    ex.StackTrace.Dump();
+            //}
+        }
+
+        //private void ApplyChangesToNode(TreeNode node)
+        //{
+        //    if (node == null) return;
+        //    NodeInfo nodeInfo = node.Tag as NodeInfo;
+        //    if (nodeInfo == null) return;
+
+        //    object obj = nodeInfo.Object;
+        //    if (obj == null) return;
+
+        //    // 处理当前节点的配置面板
+        //    ApplyChangesToPanel(configPanel, obj);
+
+        //    // 递归处理子节点
+        //    foreach (TreeNode childNode in node.Nodes)
+        //    {
+        //        ApplyChangesToNode(childNode);
+        //    }
+        //}
+
+        //private void ApplyChangesToPanel(Control container, object obj)
+        //{
+        //    foreach (Control control in container.Controls)
+        //    {
+        //        if (control is GroupBox groupBox)
+        //        {
+        //            // 递归处理分组容器中的控件
+        //            ApplyChangesToPanel(groupBox, obj);
+        //        }
+        //        else if (control.Tag is PropertyInfo propertyInfo)
+        //        {
+        //            // 获取控件的值
+        //            object value = GetControlValue(control);
+        //            //new { value,control.Name,control.Text,control.Tag}.Dump();
+        //            //value.Dump();
+        //            if (value != null)
+        //            {
+        //                // 设置属性值
+        //                new { obj,value}.Dump();
+        //                propertyInfo.SetValue(obj, value);
+        //            }
+        //        }
+        //    }
+        //}
+
+        private object GetControlValue(Control control)
+        {
+            if (control is CheckBox checkBox)
+            {
+                return checkBox.Checked;
+            }
+            else if (control is ComboBox comboBox)
+            {
+                return comboBox.SelectedItem;
+            }
+            else if (control is NumericUpDown numericUpDown)
+            {
+                return (int)numericUpDown.Value;
+            }
+            else if (control is DateTimePicker dateTimePicker)
+            {
+                return dateTimePicker.Value;
+            }
+            else if (control is TextBox textBox)
+            {
+                return textBox.Text;
+            }
+            else if (control is Panel panel && panel.Tag is PropertyInfo propertyInfo)
+            {
+                // 处理路径选择器控件
+                var textBoxInPanel = panel.Controls.OfType<TextBox>().FirstOrDefault();
+                return textBoxInPanel?.Text;
+            }
+            return null;
         }
 
         private class NodeInfo
