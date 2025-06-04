@@ -1,7 +1,5 @@
 ﻿using ConfigTool.ConfigCore;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace DemoApp1
 {
@@ -29,19 +27,6 @@ namespace DemoApp1
                 if (_port != value)
                 {
                     _port = value; OnPropertyChanged();
-                }
-            }
-        }
-
-        private ServerConfig _serverConfig = new ServerConfig();
-        [Config("高级设置", "ServerConfig")]
-        public ServerConfig ServerConfig
-        {
-            get => _serverConfig; set
-            {
-                if (_serverConfig != value)
-                {
-                    value = _serverConfig; OnPropertyChanged();
                 }
             }
         }
@@ -160,20 +145,6 @@ namespace DemoApp1
                 if (outputFolder != value)
                 {
                     outputFolder = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private BindingList<ServerConfig> _servers = new BindingList<ServerConfig>();
-        [Config("高级设置", "服务器配置", Order = 6)]
-        public BindingList<ServerConfig> Servers
-        {
-            get => _servers; set
-            {
-                if (_servers != value)
-                {
-                    _servers = value;
                     OnPropertyChanged();
                 }
             }

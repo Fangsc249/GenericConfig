@@ -22,7 +22,7 @@ namespace ConfigTool.ConfigUI
         private IConfigService _configService;
         private string _configFile;
         private string _currentPath;
-        private string _rootNodeText;
+        //private string _rootNodeText;
         private BindingSource _bindingSource = new BindingSource();
         private Dictionary<string, object> _objectCache = new Dictionary<string, object>();
 
@@ -67,13 +67,13 @@ namespace ConfigTool.ConfigUI
             splitContainer.Panel2.Controls.Add(configPanel);
         }
         //Main logic
-        public void Bind(IConfigService configService, object configObj, string configFile,string rootNodeText="Config", string configPath = "root")
+        public void Bind(IConfigService configService, object configObj, string configFile,string rootNodeText="Config")
         {
             _configObject = configObj;
             _configService = configService;
             _configFile = configFile;
-            _currentPath = configPath;
-            _rootNodeText = rootNodeText;
+            _currentPath = rootNodeText;
+            //_rootNodeText = rootNodeText;
             _bindingSource.DataSource = configObj;
             BuildConfigTree();
         }
@@ -83,7 +83,7 @@ namespace ConfigTool.ConfigUI
             configTree.Nodes.Clear();
             _objectCache.Clear();
 
-            var rootNode = new TreeNode(_rootNodeText)
+            var rootNode = new TreeNode(_currentPath)
             {
                 Tag = new NodeInfo { Path = _currentPath, Object = _configObject }
             };
@@ -98,7 +98,7 @@ namespace ConfigTool.ConfigUI
 
             var type = obj.GetType();
             _objectCache[path] = obj;
-
+            
             // 处理集合类型
             if (IsCollectionType(type))
             {
@@ -106,6 +106,7 @@ namespace ConfigTool.ConfigUI
                 foreach (var item in (IEnumerable)obj)
                 {
                     string itemPath = $"{path}[{index}]";
+
                     var itemNode = new TreeNode($"元素 {index}")
                     {
                         Tag = new NodeInfo { Path = itemPath, Object = item }
@@ -177,6 +178,8 @@ namespace ConfigTool.ConfigUI
         // Config Panel refresh
         private void ConfigTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            string treePath = (e.Node.Tag as NodeInfo).Path;
+            Console.WriteLine($"{treePath}");
             LoadNodeConfiguration(e.Node);
         }
         private void LoadNodeConfiguration(TreeNode node)
@@ -209,7 +212,7 @@ namespace ConfigTool.ConfigUI
             {
                 var addButton = new Button
                 {
-                    Text = "添加新元素-Load",
+                    Text = "Add",
                     Top = topPos,
                     Left = 10,
                     Width = 120
@@ -222,7 +225,6 @@ namespace ConfigTool.ConfigUI
             // 生成配置控件
             GenerateControlsForObject(obj, configPanel, ref topPos);
         }
-
         private void GenerateControlsForObject_bk(object obj, Control container, ref int topPos, int indentLevel = 0)
         {
             if (obj == null) return;

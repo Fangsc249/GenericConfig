@@ -6,10 +6,11 @@ C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CoreCompileInputs
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CopyComplete
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.dll
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.pdb
-C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.ConfigForm.resources
-C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.DynamicPanel.resources
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.GenerateResource.cache
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.dll.config
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\YamlDotNet.dll
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\YamlDotNet.xml
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csprojAssemblyReference.cache
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.TabedPanel.resources
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.TabedPanelForm.resources
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.NestedConfigPanelForm.resources

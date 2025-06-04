@@ -55,10 +55,10 @@
     <Compile Include="ConfigCore\IConfigService.cs" />
     <Compile Include="ConfigCore\JsonConfigService.cs" />
     <Compile Include="ConfigCore\YamlConfigService.cs" />
-    <Compile Include="ConfigUI\ConfigForm.cs">
+    <Compile Include="ConfigUI\TabedPanelForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConfigUI\DynamicPanel.cs">
+    <Compile Include="ConfigUI\TabedPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ConfigUI\NestedConfigPanel.cs">
@@ -67,14 +67,20 @@
     <Compile Include="ConfigUI\NestedConfigPanel.Designer.cs">
       <DependentUpon>NestedConfigPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConfigUI\NestedConfigPanelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ConfigUI\ConfigForm.resx">
-      <DependentUpon>ConfigForm.cs</DependentUpon>
+    <EmbeddedResource Include="ConfigUI\NestedConfigPanelForm.resx">
+      <DependentUpon>NestedConfigPanelForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConfigUI\DynamicPanel.resx">
-      <DependentUpon>DynamicPanel.cs</DependentUpon>
+    <EmbeddedResource Include="ConfigUI\TabedPanelForm.resx">
+      <DependentUpon>TabedPanelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigUI\TabedPanel.resx">
+      <DependentUpon>TabedPanel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

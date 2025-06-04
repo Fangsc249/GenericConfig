@@ -3,20 +3,20 @@ using System.Windows.Forms;
 
 namespace ConfigTool.ConfigUI
 {
-    public partial class ConfigForm : Form
+    public partial class TabedPanelForm : Form
     {
         private readonly IConfigService _configService;
         private readonly string _configPath;
         private readonly object _configObject;
 
         private TableLayoutPanel tableLayoutPanel1;
-        private DynamicPanel dynamicPanel2;
+        private TabedPanel dynamicPanel2;
         private GroupBox groupBox1;
         private Button btnCancel;
         private Button btnSave;
 
 
-        public ConfigForm(IConfigService configService, string configPath, object configObj)
+        public TabedPanelForm(IConfigService configService, string configPath, object configObj)
         {
             InitializeComponent();
             
@@ -26,7 +26,8 @@ namespace ConfigTool.ConfigUI
             _configService = configService;
             _configPath = configPath;
             _configObject = configObj;
-
+            configPath = System.IO.Path.GetFullPath(configPath);
+            Text = $"Configuraion - {configPath}";
             dynamicPanel2.Bind(configObj);
         }
 
@@ -46,12 +47,12 @@ namespace ConfigTool.ConfigUI
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigForm));
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.dynamicPanel2 = new ConfigTool.ConfigUI.DynamicPanel();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TabedPanelForm));
+            this.tableLayoutPanel1 = new TableLayoutPanel();
+            this.dynamicPanel2 = new TabedPanel();
+            this.groupBox1 = new GroupBox();
+            this.btnSave = new Button();
+            this.btnCancel = new Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -59,15 +60,15 @@ namespace ConfigTool.ConfigUI
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.dynamicPanel2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 1);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Dock = DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 600F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 600F));
+            this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(832, 666);
             this.tableLayoutPanel1.TabIndex = 0;
             // 

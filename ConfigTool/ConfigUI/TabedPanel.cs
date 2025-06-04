@@ -4,23 +4,22 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
 
-
 namespace ConfigTool.ConfigUI
 {
-    public partial class DynamicPanel : UserControl
+    public partial class TabedPanel : UserControl
     {
         private object _configObject;
         private TabControl _tabControl;
 
-        public DynamicPanel()
+        public TabedPanel()
         {
-            this.AutoScroll = true;
+            AutoScroll = true;
             _tabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
                 Multiline = true,
             };
-            this.Controls.Add(_tabControl);
+            Controls.Add(_tabControl);
         }
 
         public void Bind(object configObj)
@@ -48,12 +47,12 @@ namespace ConfigTool.ConfigUI
                 _tabControl.TabPages.Add(tabPage);
 
                 // 递归生成控件
-                Console.WriteLine($"Generating for group {group.Key}");
+                //Console.WriteLine($"Generating for group {group.Key}");
                 GenerateControlsForObject(_configObject, tabPage, group.Key);
             }
         }
         private void GenerateControls_SingleLevel()
-        {
+        { // not used.
             _tabControl.TabPages.Clear();
 
             // 按Category分组属性
@@ -106,7 +105,7 @@ namespace ConfigTool.ConfigUI
             //type.Dump($"{value}");
             if (type == typeof(bool))
                 return new CheckBox { Checked = (bool)(value ?? false) };
-            
+
             if (type.IsEnum)
             {
                 var cmb = new ComboBox
@@ -145,14 +144,14 @@ namespace ConfigTool.ConfigUI
             var props = obj.GetType().GetProperties()
                 .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null && p.GetCustomAttribute<ConfigAttribute>().Category == parentCategory)
                 .OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order);
-            Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
-            
+            //Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
+
             int topPos = 20;
             foreach (var prop in props)
             {
                 var attr = prop.GetCustomAttribute<ConfigAttribute>();
                 //var category = parentCategory ?? attr.Category;
-                Console.WriteLine($"prop {prop.Name}-{prop.PropertyType.Name} simple? : {IsSimpleType(prop.PropertyType)}");
+                //Console.WriteLine($"prop {prop.Name}-{prop.PropertyType.Name} simple? : {IsSimpleType(prop.PropertyType)}");
                 // 如果是嵌套对象（类类型）
                 if (!IsSimpleType(prop.PropertyType))
                 {
@@ -160,6 +159,10 @@ namespace ConfigTool.ConfigUI
                     if (nestedObj != null)
                     {
                         // 创建分组容器（如 GroupBox）
+                        // Tag - Provides a convenient place to store any type of object.
+                        // The Tag property is not used by the .NET Framework.
+                        // Instead, you use it to store associated data(like a data
+                        // object or a string with a unique ID).
                         var groupBox = new GroupBox
                         {
                             Text = attr.DisplayName,
@@ -167,6 +170,7 @@ namespace ConfigTool.ConfigUI
                             Top = topPos,
                             Padding = new Padding(10),
                             Width = 800,
+                            Tag = nestedObj,
                         };
                         parentContainer.Controls.Add(groupBox);
                         // 递归生成嵌套对象的控件
@@ -215,50 +219,42 @@ namespace ConfigTool.ConfigUI
                    type.IsEnum ||
                    type == typeof(DateTime);
         }
-        public void ApplyChanges_bk()
+
+        public void ApplyChanges()
         {
             foreach (TabPage tabPage in _tabControl.TabPages)
             {
-                foreach (Control ctrl in tabPage.Controls)
-                {
-                    if (ctrl.Tag is PropertyInfo prop)
-                    {
-                        object value = null;
-                        if (ctrl is CheckBox cb) value = cb.Checked;
-                        else if (ctrl is ComboBox cmb) value = cmb.SelectedItem;
-                        else if (ctrl is NumericUpDown num) value = Convert.ChangeType(num.Value, prop.PropertyType);
-                        else if (ctrl is DateTimePicker dtp) value = dtp.Value;
-                        else if (ctrl is TextBox txt) value = Convert.ChangeType(txt.Text, prop.PropertyType);
-                        else if (ctrl is Panel pathPanel && pathPanel.Tag is PropertyInfo prop2)
-                        {
-                            var txt2 = pathPanel.Controls.OfType<TextBox>().FirstOrDefault();
-                            value = txt2.Text;
-                        }
-                        if (value != null)
-                            prop.SetValue(_configObject, value);
-                    }
-                }
+                ApplyChangesToObject(_configObject, tabPage);
             }
-
-        }
-        public void ApplyChanges()
-        {
-            ApplyChangesToObject(_configObject, _tabControl);
         }
 
         private void ApplyChangesToObject(object obj, Control parentContainer)
         {
             foreach (Control ctrl in parentContainer.Controls)
             {
+                //Console.WriteLine($"{ctrl is GroupBox groupBox2}");
                 if (ctrl is GroupBox groupBox)
                 {
+                    //Console.WriteLine($"{ctrl is GroupBox groupBox2}");
                     // 递归处理分组容器中的控件
-                    ApplyChangesToObject(obj, groupBox);
+                    ApplyChangesToObject(groupBox.Tag, groupBox);
+                }
+                else if (ctrl is Panel panel)
+                {
+                    // 处理路径选择器控件
+                    var txtPath = panel.Controls.OfType<TextBox>().FirstOrDefault();
+                    if (txtPath != null && txtPath.Tag is PropertyInfo prop)
+                    {
+                        object value = txtPath.Text;
+                        Console.WriteLine($"setting value {value}");
+                        prop.SetValue(obj, value);
+                    }
                 }
                 else if (ctrl.Tag is PropertyInfo prop)
                 {
                     // 设置属性值（原有逻辑）
                     object value = GetControlValue(ctrl);
+                    Console.WriteLine($"setting value {value}");
                     prop.SetValue(obj, value);
                 }
             }
@@ -268,7 +264,7 @@ namespace ConfigTool.ConfigUI
         {
             if (ctrl is CheckBox cb) return cb.Checked;
             if (ctrl is ComboBox cmb) return cmb.SelectedItem;
-            if (ctrl is NumericUpDown num) return num.Value;
+            if (ctrl is NumericUpDown num) return (int)num.Value;
             if (ctrl is DateTimePicker dtp) return dtp.Value;
             if (ctrl is TextBox txt) return txt.Text;
             return null;
