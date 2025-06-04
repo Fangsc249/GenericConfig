@@ -411,7 +411,7 @@ namespace ConfigTool.ConfigUI
                         Text = GetDisplayName(prop),
                         Top = topPos,
                         Left = leftPos,
-                        Width = 100
+                        Width = 150
                     };
 
                     var ctrl = CreateControlForType(prop, prop.GetValue(obj));

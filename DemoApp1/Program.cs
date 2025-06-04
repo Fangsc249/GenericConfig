@@ -10,17 +10,17 @@ namespace DemoApp1
         static void Main(string[] args)
         {
             NestedPanelTest();
-            //DynamicPanelTest();
+            //TabedPanelTest();
         }
         static void NestedPanelTest()
         {
-            string configFile = "labelPrinting.yaml";
+            string configFile = "LabelPrinting.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<LabelPrintingConfig>(configFile);
             new NestedConfigPanelForm(configService, config, configFile, nameof(LabelPrintingConfig)).ShowDialog();
 
         }
-        static void DynamicPanelTest()
+        static void TabedPanelTest()
         {
             string configFile = "config.json";
             configFile = "config.yaml";
