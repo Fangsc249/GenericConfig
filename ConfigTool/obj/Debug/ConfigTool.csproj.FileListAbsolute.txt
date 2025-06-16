@@ -3,14 +3,14 @@ C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.pdb
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\Newtonsoft.Json.dll
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\Newtonsoft.Json.xml
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CoreCompileInputs.cache
-C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.CopyComplete
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.dll
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.pdb
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.GenerateResource.cache
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\ConfigTool.dll.config
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\YamlDotNet.dll
 C:\Dev\VS\GenericConfig\ConfigTool\bin\Debug\YamlDotNet.xml
-C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csprojAssemblyReference.cache
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.TabedPanel.resources
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.TabedPanelForm.resources
 C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.ConfigUI.NestedConfigPanelForm.resources
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.AssemblyReference.cache
+C:\Dev\VS\GenericConfig\ConfigTool\obj\Debug\ConfigTool.csproj.Up2Date

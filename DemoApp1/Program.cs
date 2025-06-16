@@ -2,6 +2,12 @@
 using ConfigTool.ConfigCore;
 using ConfigTool.ConfigUI;
 
+/*
+ * 涉及嵌套的配置对象或者对象集合的情况使用NestedPanel
+ * 其它情况用TabedPanel可以用Tab实现更好的组织
+ * 2025-6-6
+ */
+
 namespace DemoApp1
 {
     class Program
@@ -9,12 +15,23 @@ namespace DemoApp1
         [STAThread]
         static void Main(string[] args)
         {
-            NestedPanelTest();
-            //TabedPanelTest();
+            if (args.Length > 0)
+            {
+                switch (args[0].ToLower().Trim())
+                {
+                    case "appconfig": TabedPanelTest(); break;
+                    case "labelprintingconfig": NestedPanelTest(); break;
+                }
+            }
+            else
+            {
+                TabedPanelTest();
+            }
+            
         }
         static void NestedPanelTest()
         {
-            string configFile = "LabelPrinting.yaml";
+            string configFile = $"{nameof(LabelPrintingConfig)}.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<LabelPrintingConfig>(configFile);
             new NestedConfigPanelForm(configService, config, configFile, nameof(LabelPrintingConfig)).ShowDialog();
@@ -22,11 +39,10 @@ namespace DemoApp1
         }
         static void TabedPanelTest()
         {
-            string configFile = "config.json";
-            configFile = "config.yaml";
+            string configFile = $"{nameof(AppConfig)}.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<AppConfig>(configFile);
             new TabedPanelForm(configService, configFile, config).ShowDialog();
         }
-    }   
+    }
 }

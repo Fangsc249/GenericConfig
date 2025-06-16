@@ -176,8 +176,6 @@ namespace DemoApp1
                 }
             }
         }
-
-
     }
     public enum LogLevel
     {
