@@ -25,7 +25,7 @@ namespace DemoApp1
             }
             else
             {
-                TabedPanelTest();
+                TabedPanelAppConfig_001();
             }
             
         }
@@ -42,6 +42,13 @@ namespace DemoApp1
             string configFile = $"{nameof(AppConfig)}.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<AppConfig>(configFile);
+            new TabedPanelForm(configService, configFile, config).ShowDialog();
+        }
+        static void TabedPanelAppConfig_001()
+        {
+            string configFile = $"{nameof(AppConfig_001)}.yaml";
+            IConfigService configService = new YamlConfigService();
+            var config = configService.Load<AppConfig_001>(configFile);
             new TabedPanelForm(configService, configFile, config).ShowDialog();
         }
     }

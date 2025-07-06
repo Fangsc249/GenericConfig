@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.IO;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -33,10 +34,9 @@ namespace ConfigTool.ConfigCore
                 .WithNamingConvention(PascalCaseNamingConvention.Instance) // 
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull) // 忽略null值
                 .Build();
-
             // 序列化为YAML字符串
             string yaml = serializer.Serialize(config);
-
+            //Console.WriteLine($"保存配置到文件之前: {yaml}"); // 输出保存路径
             // 写入文件
             File.WriteAllText(path, yaml);
         }

@@ -1,8 +1,9 @@
 ﻿using ConfigTool.ConfigCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace ConfigTool.ConfigUI
 {
@@ -113,7 +114,22 @@ namespace ConfigTool.ConfigUI
                     DropDownStyle = ComboBoxStyle.DropDownList,
                     DataSource = Enum.GetValues(type)
                 };
-                if (value != null) cmb.SelectedItem = value;
+                Console.WriteLine($"Creating ComboBox for enum {type.Name} with value {value}");
+                if (value != null)
+                {
+                    // 遍历 DataSource 中的每一项，查找与 value 相等的项
+                    foreach (var item in (Array)cmb.DataSource)
+                    {
+                        Console.WriteLine($"Checking item {item} against value {value}");
+                        if (item.Equals(value)) // 使用 Equals 比较值是否相等
+                        {
+                            //cmb.SelectedItem = item; // 找到匹配项，设置为选中状态
+                            cmb.SelectedValue = item; // 设置 SelectedValue 而不是 SelectedItem
+                            break;
+                        }
+                    }
+                }
+
                 return cmb;
             }
 
@@ -197,9 +213,9 @@ namespace ConfigTool.ConfigUI
                     ctl.Left = 170;
                     ctl.Tag = prop;
 
-                    if (ctl is TextBox txt) ctl.Width = 200;
+                    if (ctl is TextBox txt) ctl.Width = 500;
                     if (ctl is TextBox && attr.DisplayName == "Connection String") ctl.Width = 600;
-                    if (ctl is ComboBox cmb) cmb.Width = 200;
+                    if (ctl is ComboBox cmb) cmb.Width = 400;
                     parentContainer.Controls.Add(ctl);
                     if (!string.IsNullOrEmpty(attr.Description))
                     {
