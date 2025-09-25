@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="ConfigCore\ConfigAttribute.cs" />
     <Compile Include="ConfigCore\ConfigBase.cs" />
+    <Compile Include="ConfigCore\ConfigLoader.cs" />
     <Compile Include="ConfigCore\IConfigService.cs" />
     <Compile Include="ConfigCore\JsonConfigService.cs" />
     <Compile Include="ConfigCore\YamlConfigService.cs" />

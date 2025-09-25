@@ -19,7 +19,7 @@ namespace ConfigTool.ConfigUI
         public TabedPanelForm(IConfigService configService, string configPath, object configObj)
         {
             InitializeComponent();
-            
+
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
