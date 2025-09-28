@@ -1,4 +1,5 @@
 ﻿using ConfigTool.ConfigUI;
+using System.Windows.Forms;
 
 namespace ConfigTool.ConfigCore
 {
@@ -17,6 +18,7 @@ namespace ConfigTool.ConfigCore
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<T>(configFile);
             new TabedPanelForm(configService, configFile, config).ShowDialog();
+            
         }
         public static void NestedPanelYamlConfig<T>() where T : ConfigBase, new()
         {
