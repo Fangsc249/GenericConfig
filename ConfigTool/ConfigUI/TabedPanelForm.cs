@@ -19,7 +19,7 @@ namespace ConfigTool.ConfigUI
         public TabedPanelForm(IConfigService configService, string configPath, object configObj)
         {
             InitializeComponent();
-
+            WinFormFormatters.FormatButtonsAsBootstrapInfo(new[] { btnSave, btnCancel });
             btnSave.Click += btnSave_Click;
             btnCancel.Click += btnCancel_Click;
 
@@ -28,7 +28,9 @@ namespace ConfigTool.ConfigUI
             _configObject = configObj;
             configPath = System.IO.Path.GetFullPath(configPath);
             Text = $"Configuraion - {configPath}";
-            dynamicPanel2.Bind(configObj);
+            //************************
+            dynamicPanel2.Bind(configObj);// 根据传入的配置对象动态生成UI
+            //************************
         }
 
         private void btnSave_Click(object sender, System.EventArgs e)

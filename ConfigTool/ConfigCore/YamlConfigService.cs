@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -12,7 +11,10 @@ namespace ConfigTool.ConfigCore
         {
             // 如果文件不存在，返回默认实例
             if (!File.Exists(path))
+            {
+                Console.WriteLine($"配置文件 {path} 不存在，使用默认配置。");
                 return new T();
+            }
 
             // 读取YAML文件内容
             string yaml = File.ReadAllText(path);

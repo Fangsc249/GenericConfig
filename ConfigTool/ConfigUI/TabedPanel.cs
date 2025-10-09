@@ -105,32 +105,100 @@ namespace ConfigTool.ConfigUI
             //type.Dump($"{value}");
             if (type == typeof(bool))
                 return new CheckBox { Checked = (bool)(value ?? false) };
-
-            if (type.IsEnum)
+            if (type.IsEnum) // Hunyuan AI 2025-10-2 解决了枚举类型SelectedIndex无法正确设置的问题
             {
                 var cmb = new ComboBox
                 {
-                    DropDownStyle = ComboBoxStyle.DropDownList,
-                    DataSource = Enum.GetValues(type)
+                    DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                Console.WriteLine($"Creating ComboBox for enum {type.Name} with value {value}");
+
+                //Console.WriteLine($"Creating ComboBox for enum: {type.Name}");
+
+                // 手动添加枚举值到 Items
+                var enumValues = Enum.GetValues(type);
+                foreach (var enumValue in enumValues)
+                {
+                    cmb.Items.Add(enumValue);
+                }
+
+                //Console.WriteLine($"✅ ComboBox.Items.Count = {cmb.Items.Count}");
+
                 if (value != null)
                 {
-                    // 遍历 DataSource 中的每一项，查找与 value 相等的项
-                    foreach (var item in (Array)cmb.DataSource)
+                    if (type.IsAssignableFrom(value.GetType()))
                     {
-                        Console.WriteLine($"Checking item {item} against value {value}");
-                        if (item.Equals(value)) // 使用 Equals 比较值是否相等
+                        //Console.WriteLine($"Selecting value: {value}");
+
+                        for (int i = 0; i < cmb.Items.Count; i++)
                         {
-                            //cmb.SelectedItem = item; // 找到匹配项，设置为选中状态
-                            cmb.SelectedValue = item; // 设置 SelectedValue 而不是 SelectedItem
-                            break;
+                            if (cmb.Items[i].Equals(value))
+                            {
+                                //Console.WriteLine($"✅ Found at index {i}, setting SelectedIndex = {i}");
+                                cmb.SelectedIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (cmb.SelectedIndex == -1)
+                        {
+                            Console.WriteLine($"⚠️ Did not find a match. Defaulting to index 0.");
+                            cmb.SelectedIndex = 0;
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine($"❌ Value type not compatible. Defaulting to index 0.");
+                        cmb.SelectedIndex = 0;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ value is null. Defaulting to index 0.");
+                    cmb.SelectedIndex = 0;
                 }
 
                 return cmb;
             }
+
+            //if (type.IsEnum) // DeepSeek提供的有Bug的版本
+            //{
+            //    var cmb = new ComboBox
+            //    {
+            //        DropDownStyle = ComboBoxStyle.DropDownList,
+            //        DataSource = Enum.GetValues(type)
+            //    };
+            //    Console.WriteLine($"Creating ComboBox for enum {type.Name} with selected value: {value}");
+            //    Console.WriteLine($"🔍 Debug: ComboBox.Items.Count = {cmb.Items.Count}");
+
+            //    if (value != null)
+            //    {
+            //        //cmb.SelectedIndex = 1;
+            //        if (type.IsAssignableFrom(value.GetType()))
+            //        {
+            //            Console.WriteLine($"Value is a valid enum of type {type.Name}: {value}");
+
+            //            // ✅ 正确方式：遍历 Items，找到与 value 值相等的项（使用 Equals），然后设置 SelectedIndex
+            //            var items = (Array)cmb.DataSource;
+            //            for (int i = 0; i < items.Length; i++)
+            //            {
+            //                var item = items.GetValue(i);
+            //                if (item.Equals(value))  // 使用 .Equals() 比较值，而不是引用
+            //                {
+            //                    Console.WriteLine($"Found match at index {i}: {item}");
+            //                    //cmb.SelectedIndex = i;
+            //                    break;
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine($"Value type {value.GetType()} is not the same as enum type {type}");
+            //        }
+                    
+            //    }
+
+            //    return cmb;
+            //}
 
             if (type == typeof(int) || type == typeof(double))
                 return new NumericUpDown
@@ -212,7 +280,11 @@ namespace ConfigTool.ConfigUI
                     ctl.Left = 170;
                     ctl.Tag = prop;
 
-                    if (ctl is TextBox txt) ctl.Width = 500;
+                    if (ctl is TextBox txt)
+                    {
+                        ctl.Width = 500;
+                        //txt.TextAlign = HorizontalAlignment.Right;
+                    }
                     if (ctl is TextBox && attr.DisplayName == "Connection String") ctl.Width = 600;
                     if (ctl is ComboBox cmb) cmb.Width = 400;
                     parentContainer.Controls.Add(ctl);
@@ -261,7 +333,7 @@ namespace ConfigTool.ConfigUI
                     if (txtPath != null && txtPath.Tag is PropertyInfo prop)
                     {
                         object value = txtPath.Text;
-                        Console.WriteLine($"setting value {value}");
+                        //Console.WriteLine($"setting value {value}");
                         prop.SetValue(obj, value);
                     }
                 }
@@ -269,7 +341,7 @@ namespace ConfigTool.ConfigUI
                 {
                     // 设置属性值（原有逻辑）
                     object value = GetControlValue(ctrl);
-                    Console.WriteLine($"setting value {value}");
+                    //Console.WriteLine($"setting value {value}");
                     prop.SetValue(obj, value);
                 }
             }
@@ -294,8 +366,18 @@ namespace ConfigTool.ConfigUI
                 Width = 500,
                 Dock = DockStyle.Left,
                 Tag = prop,
-            };
 
+            };
+            txtPath.SelectionStart = txtPath.Text.Length;
+            txtPath.ScrollToCaret();
+            txtPath.TextChanged
+                += (s, e) =>
+            {
+                //Console.WriteLine($"Path changed: {txtPath.Text}");
+                // You can add validation logic here if needed
+                txtPath.SelectionStart = txtPath.Text.Length;
+                txtPath.ScrollToCaret();
+            };
             var btnBrowse = new Button
             {
                 Text = "浏览...",
@@ -303,6 +385,7 @@ namespace ConfigTool.ConfigUI
                 Width = 80,
                 Height = 20,
             };
+            WinFormFormatters.FormatButtonsAsBootstrapInfo(new[] { btnBrowse });
             var attr = prop.GetCustomAttribute<PathSelectorAttribute>();
             btnBrowse.Click += (s, e) =>
             {

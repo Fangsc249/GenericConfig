@@ -71,6 +71,7 @@
     <Compile Include="ConfigUI\NestedConfigPanelForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ConfigUI\WinFormFormatters.cs" />
     <Compile Include="FileDialogs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

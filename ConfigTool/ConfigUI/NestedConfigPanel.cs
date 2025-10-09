@@ -1,15 +1,12 @@
-﻿using System;
+﻿using ConfigTool.ConfigCore;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Reflection;
-using System.Collections;
-using ConfigTool.ConfigCore;
+using System.Windows.Forms;
 
 
 namespace ConfigTool.ConfigUI
@@ -48,12 +45,13 @@ namespace ConfigTool.ConfigUI
             configTree = new TreeView
             {
                 Dock = DockStyle.Fill,
-                ShowRootLines = true,
+                ShowRootLines = false,
                 ShowPlusMinus = true,
                 HideSelection = false,
                 BackColor = Color.AliceBlue
             };
             configTree.AfterSelect += ConfigTree_AfterSelect;
+            configTree.DrawNode += treeView_DrawNode;
             splitContainer.Panel1.Controls.Add(configTree);
 
             // 右侧配置面板
@@ -66,8 +64,9 @@ namespace ConfigTool.ConfigUI
             };
             splitContainer.Panel2.Controls.Add(configPanel);
         }
+
         //Main logic
-        public void Bind(IConfigService configService, object configObj, string configFile,string rootNodeText="Config")
+        public void Bind(IConfigService configService, object configObj, string configFile, string rootNodeText = "Config")
         {
             _configObject = configObj;
             _configService = configService;
@@ -98,7 +97,7 @@ namespace ConfigTool.ConfigUI
 
             var type = obj.GetType();
             _objectCache[path] = obj;
-            
+
             // 处理集合类型
             if (IsCollectionType(type))
             {
@@ -107,7 +106,7 @@ namespace ConfigTool.ConfigUI
                 {
                     string itemPath = $"{path}[{index}]";
 
-                    var itemNode = new TreeNode($"元素 {index}")
+                    var itemNode = new TreeNode($"Element {index + 1}")
                     {
                         Tag = new NodeInfo { Path = itemPath, Object = item }
                     };
@@ -138,6 +137,30 @@ namespace ConfigTool.ConfigUI
                 BuildTreeNodes(propNode, propValue, propPath);
             }
         }
+        private void treeView_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            // 确定绘制模式
+            if ((e.State & TreeNodeStates.Selected) != 0)
+            {
+                // 选中状态
+                e.Graphics.FillRectangle(Brushes.DarkBlue, e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, new Font("Segoe UI", 14, FontStyle.Bold), Brushes.White, e.Bounds.X + 2, e.Bounds.Y + 2);
+            }
+            else
+            {
+                // 未选中状态
+                e.Graphics.FillRectangle(Brushes.LightGray, e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, new Font("Segoe UI", 9), Brushes.Black, e.Bounds.X + 2, e.Bounds.Y + 2);
+            }
+
+            // 如果节点有图像，绘制图像
+            //if (e.Node.ImageIndex != -1)
+            //{
+            //    Image image = imageList.Images[e.Node.ImageIndex];
+            //    e.Graphics.DrawImage(image, e.Bounds.X, e.Bounds.Y, image.Width, image.Height);
+            //}
+        }
+
         private void AddDataBinding(Control ctrl, object dataSource, string propertyName)
         {
             if (ctrl is CheckBox checkBox)
@@ -179,7 +202,7 @@ namespace ConfigTool.ConfigUI
         private void ConfigTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             string treePath = (e.Node.Tag as NodeInfo).Path;
-            Console.WriteLine($"{treePath}");
+            //Console.WriteLine($"{treePath}");
             LoadNodeConfiguration(e.Node);
         }
         private void LoadNodeConfiguration(TreeNode node)
@@ -511,14 +534,69 @@ namespace ConfigTool.ConfigUI
             //type.Dump($"{value}");
             if (type == typeof(bool))
                 return new CheckBox { Checked = (bool)(value ?? false) };
-            if (type.IsEnum)
+
+            //if (type.IsEnum)
+            //{
+            //    var cmb = new ComboBox
+            //    {
+            //        DropDownStyle = ComboBoxStyle.DropDownList,
+            //        DataSource = Enum.GetValues(type)
+            //    };
+            //    if (value != null) cmb.SelectedItem = value;
+            //    return cmb;
+            //}
+            if (type.IsEnum) // Hunyuan AI 2025-10-2 解决了枚举类型SelectedIndex无法正确设置的问题
             {
                 var cmb = new ComboBox
                 {
-                    DropDownStyle = ComboBoxStyle.DropDownList,
-                    DataSource = Enum.GetValues(type)
+                    DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                if (value != null) cmb.SelectedItem = value;
+
+                //Console.WriteLine($"Creating ComboBox for enum: {type.Name}");
+
+                // 手动添加枚举值到 Items
+                var enumValues = Enum.GetValues(type);
+                foreach (var enumValue in enumValues)
+                {
+                    cmb.Items.Add(enumValue);
+                }
+
+                //Console.WriteLine($"✅ ComboBox.Items.Count = {cmb.Items.Count}");
+
+                if (value != null)
+                {
+                    if (type.IsAssignableFrom(value.GetType()))
+                    {
+                        //Console.WriteLine($"Selecting value: {value}");
+
+                        for (int i = 0; i < cmb.Items.Count; i++)
+                        {
+                            if (cmb.Items[i].Equals(value))
+                            {
+                                //Console.WriteLine($"✅ Found at index {i}, setting SelectedIndex = {i}");
+                                cmb.SelectedIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (cmb.SelectedIndex == -1)
+                        {
+                            Console.WriteLine($"⚠️ Did not find a match. Defaulting to index 0.");
+                            cmb.SelectedIndex = 0;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"❌ Value type not compatible. Defaulting to index 0.");
+                        cmb.SelectedIndex = 0;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ value is null. Defaulting to index 0.");
+                    cmb.SelectedIndex = 0;
+                }
+
                 return cmb;
             }
             if (type == typeof(int) || type == typeof(double) || type == typeof(decimal))
@@ -549,7 +627,14 @@ namespace ConfigTool.ConfigUI
                 Dock = DockStyle.Left,
                 Tag = prop,
             };
-
+            txtPath.SelectionStart = txtPath.Text.Length;
+            txtPath.ScrollToCaret();
+            txtPath.TextChanged
+                += (s, e) =>
+                {
+                    txtPath.SelectionStart = txtPath.Text.Length;
+                    txtPath.ScrollToCaret();
+                };
             var btnBrowse = new Button
             {
                 Text = "浏览...",
@@ -557,6 +642,7 @@ namespace ConfigTool.ConfigUI
                 Width = 80,
                 Height = 20,
             };
+            WinFormFormatters.FormatButtonsAsBootstrapInfo(new Button[] { btnBrowse });
             var attr = prop.GetCustomAttribute<PathSelectorAttribute>();
             btnBrowse.Click += (s, e) =>
             {
