@@ -25,7 +25,6 @@ namespace ConfigTool.ConfigUI
 
         public NestedConfigPanel()
         {
-            //InitializeComponent();
             MyInitializeComponent();
         }
 
@@ -64,7 +63,6 @@ namespace ConfigTool.ConfigUI
             };
             splitContainer.Panel2.Controls.Add(configPanel);
         }
-
         //Main logic
         public void Bind(IConfigService configService, object configObj, string configFile, string rootNodeText = "Config")
         {
@@ -72,7 +70,6 @@ namespace ConfigTool.ConfigUI
             _configService = configService;
             _configFile = configFile;
             _currentPath = rootNodeText;
-            //_rootNodeText = rootNodeText;
             _bindingSource.DataSource = configObj;
             BuildConfigTree();
         }
@@ -84,31 +81,31 @@ namespace ConfigTool.ConfigUI
 
             var rootNode = new TreeNode(_currentPath)
             {
-                Tag = new NodeInfo { Path = _currentPath, Object = _configObject }
+                Tag = new NodeInfo { Path = _currentPath, ConfigObject = _configObject }
             };
             configTree.Nodes.Add(rootNode);
 
             BuildTreeNodes(rootNode, _configObject, _currentPath);
             rootNode.Expand();
         }
-        private void BuildTreeNodes(TreeNode parentNode, object obj, string path)
+        private void BuildTreeNodes(TreeNode parentNode, object configObj, string path)
         {
-            if (obj == null) return;
+            if (configObj == null) return;
 
-            var type = obj.GetType();
-            _objectCache[path] = obj;
+            var type = configObj.GetType();
+            _objectCache[path] = configObj;
 
             // 处理集合类型
             if (IsCollectionType(type))
             {
                 int index = 0;
-                foreach (var item in (IEnumerable)obj)
+                foreach (var item in (IEnumerable)configObj)
                 {
                     string itemPath = $"{path}[{index}]";
 
                     var itemNode = new TreeNode($"Element {index + 1}")
                     {
-                        Tag = new NodeInfo { Path = itemPath, Object = item }
+                        Tag = new NodeInfo { Path = itemPath, ConfigObject = item }
                     };
                     parentNode.Nodes.Add(itemNode);
 
@@ -124,13 +121,13 @@ namespace ConfigTool.ConfigUI
                 if (IsSimpleType(prop.PropertyType)) continue;
 
                 string propPath = $"{path}.{prop.Name}";
-                var propValue = prop.GetValue(obj);
+                var propValue = prop.GetValue(configObj);
 
                 if (propValue == null) continue;
 
                 var propNode = new TreeNode(prop.Name)
                 {
-                    Tag = new NodeInfo { Path = propPath, Object = propValue }
+                    Tag = new NodeInfo { Path = propPath, ConfigObject = propValue }
                 };
                 parentNode.Nodes.Add(propNode);
 
@@ -160,7 +157,6 @@ namespace ConfigTool.ConfigUI
             //    e.Graphics.DrawImage(image, e.Bounds.X, e.Bounds.Y, image.Width, image.Height);
             //}
         }
-
         private void AddDataBinding(Control ctrl, object dataSource, string propertyName)
         {
             if (ctrl is CheckBox checkBox)
@@ -198,7 +194,6 @@ namespace ConfigTool.ConfigUI
                 }
             }
         }
-        // Config Panel refresh
         private void ConfigTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             string treePath = (e.Node.Tag as NodeInfo).Path;
@@ -213,16 +208,16 @@ namespace ConfigTool.ConfigUI
             NodeInfo nodeInfo = node.Tag as NodeInfo;
             if (nodeInfo == null) return;
 
-            var obj = nodeInfo.Object;
-            if (obj == null) return;
+            var configObj = nodeInfo.ConfigObject;
+            if (configObj == null) return;
 
             int topPos = 10;
 
             // 添加标题
             var titleLabel = new Label
             {
-                Text = $"{node.Text} 配置",
-                Font = new Font("Microsoft Sans Serif", 12, FontStyle.Bold),
+                Text = $"{node.Text}",
+                Font = new Font("Microsoft Sans Serif", 12, FontStyle.Regular),
                 AutoSize = true,
                 Top = topPos,
                 Left = 10
@@ -231,7 +226,7 @@ namespace ConfigTool.ConfigUI
             topPos += 40;
 
             // 处理集合类型
-            if (IsCollectionType(obj.GetType()))
+            if (IsCollectionType(configObj.GetType()))
             {
                 var addButton = new Button
                 {
@@ -240,149 +235,26 @@ namespace ConfigTool.ConfigUI
                     Left = 10,
                     Width = 120
                 };
-                addButton.Click += (s, e) => AddCollectionElement(node, obj);
+                addButton.Click += (s, e) => AddCollectionElement(node, configObj);
                 configPanel.Controls.Add(addButton);
                 topPos += 40;
             }
 
             // 生成配置控件
-            GenerateControlsForObject(obj, configPanel, ref topPos);
+            GenerateControlsForObject(configObj, configPanel, ref topPos);
         }
-        private void GenerateControlsForObject_bk(object obj, Control container, ref int topPos, int indentLevel = 0)
+        private void GenerateControlsForObject(object configObject, Control container, ref int topPos, int indentLevel = 0)
         {
-            if (obj == null) return;
+            if (configObject == null) return;
 
-            var type = obj.GetType();
+            var type = configObject.GetType();
             int leftPos = 10 + indentLevel * 20;
 
             // 处理集合类型
             if (IsCollectionType(type))
             {
                 int index = 0;
-                foreach (var item in (IEnumerable)obj)
-                {
-                    var group = new GroupBox
-                    {
-                        Text = $"元素 {index}",
-                        Top = topPos,
-                        Left = leftPos,
-                        Width = container.Width - leftPos - 25,
-                        Height = 120
-                    };
-
-                    var innerPanel = new Panel
-                    {
-                        Dock = DockStyle.Fill,
-                        AutoScroll = true
-                    };
-
-                    int innerTop = 20;
-                    GenerateControlsForObject(item, innerPanel, ref innerTop, indentLevel + 1);
-
-                    var removeButton = new Button
-                    {
-                        Text = "删除",
-                        Top = 10,
-                        Height = 20,
-                        Left = group.Width - 80,
-                        Width = 70
-                    };
-                    removeButton.Click += (s, e) => RemoveCollectionElement(obj, index);
-
-                    group.Controls.Add(removeButton);
-                    group.Controls.Add(innerPanel);
-                    container.Controls.Add(group);
-
-                    topPos += group.Height + 10;
-                    index++;
-                }
-                return;
-            }
-
-            // 处理嵌套对象
-            foreach (var prop in type.GetProperties())
-            {
-                // 简单类型属性
-                if (IsSimpleType(prop.PropertyType))
-                {
-                    var lbl = new Label
-                    {
-                        Text = GetDisplayName(prop),
-                        Top = topPos,
-                        Left = leftPos,
-                        Width = 150
-                    };
-
-                    var ctrl = CreateControlForType(prop, prop.GetValue(obj));
-                    ctrl.Top = topPos;
-                    ctrl.Left = leftPos + 160;
-                    //ctrl.Width = 250;
-                    ctrl.Tag = prop;
-
-                    //Add databinding
-                    AddDataBinding(ctrl, obj, prop.Name);
-                    container.Controls.Add(lbl);
-                    container.Controls.Add(ctrl);
-
-                    topPos += ctrl.Height + 10;
-                }
-                // 注释掉下面处理嵌套对象属性的代码，只在TreeNode被选择之后再去生成，否则界面很乱。2025-6-3
-                else if (!IsCollectionType(prop.PropertyType))
-                {
-                    //var group = new GroupBox
-                    //{
-                    //    Text = prop.Name,
-                    //    Top = topPos,
-                    //    Left = leftPos,
-                    //    Width = container.Width - leftPos - 25,
-                    //    //Width = container.Width - leftPos,
-                    //    Height = 150
-                    //};
-
-                    //var innerPanel = new Panel
-                    //{
-                    //    Dock = DockStyle.Fill,
-                    //    AutoScroll = true
-                    //};
-
-                    //int innerTop = 10;
-                    //GenerateControlsForObject(prop.GetValue(obj), innerPanel, ref innerTop, indentLevel + 1);
-
-                    //group.Controls.Add(innerPanel);
-                    //container.Controls.Add(group);
-                    ////container.Name.Dump();
-                    //topPos += group.Height + 10;
-                }
-            }
-        }
-        private void GenerateControlsForObject(object obj, Control container, ref int topPos, int indentLevel = 0)
-        {
-            if (obj == null) return;
-
-            var type = obj.GetType();
-            int leftPos = 10 + indentLevel * 20;
-
-            // 处理集合类型
-            if (IsCollectionType(type))
-            {
-                //var bindingList = obj as IBindingList;
-                //if (bindingList != null)
-                //{
-                //    // 添加新元素按钮
-                //    var addButton = new Button
-                //    {
-                //        Text = "添加新元素-Gen",
-                //        Top = topPos,
-                //        Left = 10,
-                //        Width = 120
-                //    };
-                //    addButton.Click += (s, e) => AddCollectionElement(bindingList);
-                //    container.Controls.Add(addButton);
-                //    topPos += 40;
-                //}
-
-                int index = 0;
-                foreach (var item in (IEnumerable)obj)
+                foreach (var item in (IEnumerable)configObject)
                 {
                     var group = new GroupBox
                     {
@@ -411,7 +283,7 @@ namespace ConfigTool.ConfigUI
                         Width = 70
                     };
                     int removeIndex = index;
-                    removeButton.Click += (s, e) => RemoveCollectionElement(obj, removeIndex);
+                    removeButton.Click += (s, e) => RemoveCollectionElement(configObject, removeIndex);
 
                     group.Controls.Add(removeButton);
                     group.Controls.Add(innerPanel);
@@ -437,14 +309,14 @@ namespace ConfigTool.ConfigUI
                         Width = 150
                     };
 
-                    var ctrl = CreateControlForType(prop, prop.GetValue(obj));
+                    var ctrl = CreateControlForType(prop, prop.GetValue(configObject));
                     ctrl.Top = topPos;
                     ctrl.Left = leftPos + 160;
                     //ctrl.Width = 250;
                     ctrl.Tag = prop;
 
                     //Add databinding
-                    AddDataBinding(ctrl, obj, prop.Name);
+                    AddDataBinding(ctrl, configObject, prop.Name);
                     container.Controls.Add(lbl);
                     container.Controls.Add(ctrl);
 
@@ -453,13 +325,13 @@ namespace ConfigTool.ConfigUI
 
             }
         }
-        private void AddCollectionElement(IBindingList list)
-        {   // for databinding
-            // 要在GenerateControlsForObject中使用，但是尚未启用2025-6-3
-            Type elementType = GetCollectionElementType(list.GetType());
-            object newItem = CreateDefaultInstance(elementType);
-            list.Add(newItem);
-        }
+        //private void AddCollectionElement(IBindingList list)
+        //{   // for databinding
+        //    // 要在GenerateControlsForObject中使用，但是尚未启用2025-6-3
+        //    Type elementType = GetCollectionElementType(list.GetType());
+        //    object newItem = CreateDefaultInstance(elementType);
+        //    list.Add(newItem);
+        //}
         private void AddCollectionElement(TreeNode parentNode, object collection)
         {
             if (collection is IList list)
@@ -488,8 +360,6 @@ namespace ConfigTool.ConfigUI
                 LoadNodeConfiguration(configTree.SelectedNode);
             }
         }
-
-        // 辅助方法
         private bool IsSimpleType(Type type)
         {
             return type.IsPrimitive ||
@@ -527,7 +397,6 @@ namespace ConfigTool.ConfigUI
             var attr = prop.GetCustomAttribute<DisplayNameAttribute>();
             return attr?.DisplayName ?? prop.Name;
         }
-
         private Control CreateControlForType(PropertyInfo prop, object value)
         {
             Type type = prop.PropertyType;
@@ -535,16 +404,6 @@ namespace ConfigTool.ConfigUI
             if (type == typeof(bool))
                 return new CheckBox { Checked = (bool)(value ?? false) };
 
-            //if (type.IsEnum)
-            //{
-            //    var cmb = new ComboBox
-            //    {
-            //        DropDownStyle = ComboBoxStyle.DropDownList,
-            //        DataSource = Enum.GetValues(type)
-            //    };
-            //    if (value != null) cmb.SelectedItem = value;
-            //    return cmb;
-            //}
             if (type.IsEnum) // Hunyuan AI 2025-10-2 解决了枚举类型SelectedIndex无法正确设置的问题
             {
                 var cmb = new ComboBox
@@ -637,12 +496,12 @@ namespace ConfigTool.ConfigUI
                 };
             var btnBrowse = new Button
             {
-                Text = "浏览...",
+                Text = "Browse...",
                 Dock = DockStyle.Right,
                 Width = 80,
                 Height = 20,
             };
-            WinFormFormatters.FormatButtonsAsBootstrapInfo(new Button[] { btnBrowse });
+            WinFormFormatters.FormatButtonsAsBootstrapInfo(btnBrowse);
             var attr = prop.GetCustomAttribute<PathSelectorAttribute>();
             btnBrowse.Click += (s, e) =>
             {
@@ -671,17 +530,15 @@ namespace ConfigTool.ConfigUI
             panel.Controls.Add(btnBrowse);
             return panel;
         }
-
         public void ApplyChanges()
         {
             _configService.Save(_configFile, (ConfigBase)_configObject);
-            MessageBox.Show("Saved.");
+            MessageBox.Show("Saved.", "Save Configuration", MessageBoxButtons.OK);
         }
-
         private class NodeInfo
         {
             public string Path { get; set; }
-            public object Object { get; set; }
+            public object ConfigObject { get; set; }
         }
     }
 }

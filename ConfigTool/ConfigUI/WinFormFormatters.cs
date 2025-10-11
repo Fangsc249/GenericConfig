@@ -13,7 +13,7 @@ namespace ConfigTool.ConfigUI
         /// <param name="warningText">警告文本</param>
         public static void FormatLabelAsWarning(Label label, string warningText)
         {
-            
+
             // 设置警告样式
             label.Text = warningText;
             label.ForeColor = Color.Red; // 白色文字更醒目
@@ -30,7 +30,7 @@ namespace ConfigTool.ConfigUI
         /// 将Label控件恢复为普通消息样式
         /// </summary>
         /// <param name="label">要复原的Label控件</param>
-        public static void FormatLabelAsNormal(Label label,string normalText)
+        public static void FormatLabelAsNormal(Label label, string normalText)
         {
             label.BackColor = Color.Transparent; // 透明背景[13](@ref)
             label.ForeColor = SystemColors.ControlText;
@@ -40,7 +40,7 @@ namespace ConfigTool.ConfigUI
             label.Text = normalText;
         }
 
-        public static void FormatButtonsAsBootstrapPrimary(Button[] buttons)
+        public static void FormatButtonsAsBootstrapPrimary(params Button[] buttons)
         {
             // 1. 定义Bootstrap Primary颜色（深蓝色，RGB: 0, 123, 255）
             Color bootstrapPrimary = Color.FromArgb(0, 123, 255); // 对应Bootstrap的#007bff
@@ -75,7 +75,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapSecondary(Button[] buttons)
+        public static void FormatButtonsAsBootstrapSecondary(params Button[] buttons)
         {
             // 1. 定义Bootstrap Secondary风格颜色（参考Bootstrap官方色值[8](@ref)[9](@ref)）
             Color secondaryColor = Color.FromArgb(108, 117, 125);   // Bootstrap Secondary灰色 (#6c757d)
@@ -146,7 +146,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapSuccess(Button[] buttons)
+        public static void FormatButtonsAsBootstrapSuccess(params Button[] buttons)
         {
             // 1. 定义Bootstrap Success风格颜色
             Color successColor = Color.FromArgb(40, 167, 69);   // Bootstrap Success绿色 (#28a745)
@@ -213,7 +213,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapDanger(Button[] buttons)
+        public static void FormatButtonsAsBootstrapDanger(params Button[] buttons)
         {
             // 1. 定义Bootstrap Danger风格颜色（参考Bootstrap官方色值）
             Color dangerColor = Color.FromArgb(220, 53, 69);    // Bootstrap Danger红色 (#dc3545)
@@ -284,7 +284,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapWarning(Button[] buttons)
+        public static void FormatButtonsAsBootstrapWarning(params Button[] buttons)
         {
             // 1. 定义Bootstrap Warning风格颜色（参考Bootstrap官方色值）
             Color warningColor = Color.FromArgb(255, 193, 7);    // Bootstrap Warning黄色 (#ffc107)
@@ -355,7 +355,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapInfo(Button[] buttons)
+        public static void FormatButtonsAsBootstrapInfo(params Button[] buttons)
         {
             // 1. 定义Bootstrap Info风格颜色（参考Bootstrap 5官方色值）
             Color infoColor = Color.FromArgb(23, 162, 184);    // Bootstrap Info青色 (#17a2b8)
@@ -426,7 +426,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapLight(Button[] buttons)
+        public static void FormatButtonsAsBootstrapLight(params Button[] buttons)
         {
             // 1. 定义Bootstrap Light风格颜色（参考Bootstrap 5官方色值）
             Color lightColor = Color.FromArgb(248, 249, 250);   // Bootstrap Light浅灰色 (#f8f9fa)
@@ -513,7 +513,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatButtonsAsBootstrapDark(Button[] buttons)
+        public static void FormatButtonsAsBootstrapDark(params Button[] buttons)
         {
             // 1. 定义Bootstrap Dark风格颜色（参考Bootstrap 5官方色值）
             Color darkColor = Color.FromArgb(33, 37, 41);      // Bootstrap Dark深灰色 (#212529)
@@ -720,7 +720,7 @@ namespace ConfigTool.ConfigUI
                         }
                         e.DrawFocusRectangle();
                     }
-                    catch (COMException ) // 重绘处理，SAP 关闭之后，可能会抛出异常。
+                    catch (COMException) // 重绘处理，SAP 关闭之后，可能会抛出异常。
                     {
                         //MessageBox.Show(cex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         //Serilog.Log.Error("{0}", cex.Message);
@@ -778,7 +778,7 @@ namespace ConfigTool.ConfigUI
                 textBox.TextAlign = HorizontalAlignment.Left; // 默认左对齐，可改为Center[6](@ref)
             }
         }
-        public static void FormatButtonsAsMaterialDesign(Button[] buttons)
+        public static void FormatButtonsAsMaterialDesign(params Button[] buttons)
         {
             // 1. 定义Material Design风格颜色
             Color primaryColor = Color.FromArgb(33, 150, 243); // Material Blue 500 (#2196F3)
@@ -845,7 +845,7 @@ namespace ConfigTool.ConfigUI
                 };
             }
         }
-        public static void FormatCheckedListBoxesAsBootstrap(CheckedListBox[] checkedListBoxes)
+        public static void FormatCheckedListBoxesAsBootstrap(params CheckedListBox[] checkedListBoxes)
         {
             // 1. 定义Bootstrap风格颜色
             Color borderColor = Color.FromArgb(206, 212, 218); // Bootstrap默认边框色 (#ced4da)

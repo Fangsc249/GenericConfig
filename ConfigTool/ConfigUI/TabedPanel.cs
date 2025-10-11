@@ -21,12 +21,10 @@ namespace ConfigTool.ConfigUI
             };
             Controls.Add(_tabControl);
         }
-
         public void Bind(object configObj)
         {
             _configObject = configObj;
             _tabControl.TabPages.Clear();
-            //GenerateControls_SingleLevel();
             GenerateControls_Recursive();//支持嵌套对象，Bug待排除
         }
         private void GenerateControls_Recursive()
@@ -51,45 +49,73 @@ namespace ConfigTool.ConfigUI
                 GenerateControlsForObject(_configObject, tabPage, group.Key);
             }
         }
-        private void GenerateControls_SingleLevel()
-        { // not used.
-            _tabControl.TabPages.Clear();
+        private void GenerateControlsForObject(object configObject, Control parentContainer, string parentCategory)
+        { // new
 
-            // 按Category分组属性
-            var groupedProps = _configObject.GetType().GetProperties()
-                .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null)
-                .GroupBy(p => p.GetCustomAttribute<ConfigAttribute>().Category)
-                .OrderBy(g => g.First().GetCustomAttribute<ConfigAttribute>().Order);
-            foreach (var group in groupedProps)
+            var props = configObject.GetType().GetProperties()
+                .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null && p.GetCustomAttribute<ConfigAttribute>().Category == parentCategory)
+                .OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order);
+            //Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
+
+            int topPos = 20;
+            foreach (var prop in props)
             {
-                var tabPage = new TabPage(group.Key)
+                var attr = prop.GetCustomAttribute<ConfigAttribute>();
+                //var category = parentCategory ?? attr.Category;
+                //Console.WriteLine($"prop {prop.Name}-{prop.PropertyType.Name} simple? : {IsSimpleType(prop.PropertyType)}");
+                // 如果是嵌套对象（类类型）
+                if (!IsSimpleType(prop.PropertyType))
                 {
-                    Padding = new Padding(10),
-                    AutoScroll = true,
-                    BackColor = System.Drawing.Color.AliceBlue,
-                };
-                _tabControl.TabPages.Add(tabPage);
-                int topPos = 10;
-                foreach (var prop in group.OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order))
+                    var nestedConfigObj = prop.GetValue(configObject);
+                    if (nestedConfigObj != null)
+                    {
+                        // 创建分组容器（如 GroupBox）
+                        // Tag - Provides a convenient place to store any type of object.
+                        // The Tag property is not used by the .NET Framework.
+                        // Instead, you use it to store associated data(like a data
+                        // object or a string with a unique ID).
+                        var groupBox = new GroupBox
+                        {
+                            Text = attr.DisplayName,
+                            Left = 10,
+                            Top = topPos,
+                            Padding = new Padding(10),
+                            Width = 800,
+                            Tag = nestedConfigObj,
+                        };
+                        parentContainer.Controls.Add(groupBox);
+                        // 递归生成嵌套对象的控件
+                        GenerateControlsForObject(nestedConfigObj, groupBox, parentCategory);
+                        topPos += groupBox.Controls.Count * 30;
+                    }
+                }
+                else
                 {
-                    var attr = prop.GetCustomAttribute<ConfigAttribute>();
+                    // 生成简单类型的控件（原有逻辑）
+
+                    var attr2 = prop.GetCustomAttribute<ConfigAttribute>();
                     var lbl = new Label
                     {
-                        Text = attr.DisplayName,
+                        Text = attr2.DisplayName,
                         Top = topPos,
                         Left = 10,
                         Width = 150,
                     };
-                    tabPage.Controls.Add(lbl);
-                    var ctl = CreateControlForType(prop.PropertyType, prop.GetValue(_configObject), prop);
+                    parentContainer.Controls.Add(lbl);
+                    //Returns the property value of a specified object.
+                    var ctl = CreateControlForType(prop.PropertyType, prop.GetValue(configObject), prop);
                     ctl.Top = topPos;
                     ctl.Left = 170;
                     ctl.Tag = prop;
 
-                    if (ctl is TextBox txt) ctl.Width = 200;
+                    if (ctl is TextBox txt)
+                    {
+                        ctl.Width = 500;
+                        //txt.TextAlign = HorizontalAlignment.Right;
+                    }
                     if (ctl is TextBox && attr.DisplayName == "Connection String") ctl.Width = 600;
-                    if (ctl is ComboBox cmb) cmb.Width = 200;
-                    tabPage.Controls.Add(ctl);
+                    if (ctl is ComboBox cmb) cmb.Width = 400;
+                    parentContainer.Controls.Add(ctl);
                     if (!string.IsNullOrEmpty(attr.Description))
                     {
                         var toolTip = new ToolTip();
@@ -120,9 +146,7 @@ namespace ConfigTool.ConfigUI
                 {
                     cmb.Items.Add(enumValue);
                 }
-
                 //Console.WriteLine($"✅ ComboBox.Items.Count = {cmb.Items.Count}");
-
                 if (value != null)
                 {
                     if (type.IsAssignableFrom(value.GetType()))
@@ -194,7 +218,7 @@ namespace ConfigTool.ConfigUI
             //        {
             //            Console.WriteLine($"Value type {value.GetType()} is not the same as enum type {type}");
             //        }
-                    
+
             //    }
 
             //    return cmb;
@@ -221,84 +245,6 @@ namespace ConfigTool.ConfigUI
             }
             return new TextBox { Text = value?.ToString() };
         }
-        private void GenerateControlsForObject(object obj, Control parentContainer, string parentCategory)
-        { // new
-
-            var props = obj.GetType().GetProperties()
-                .Where(p => p.GetCustomAttribute<ConfigAttribute>() != null && p.GetCustomAttribute<ConfigAttribute>().Category == parentCategory)
-                .OrderBy(p => p.GetCustomAttribute<ConfigAttribute>().Order);
-            //Console.WriteLine($"Processing {obj.GetType().Name} props.Count: {props.Count()}");
-
-            int topPos = 20;
-            foreach (var prop in props)
-            {
-                var attr = prop.GetCustomAttribute<ConfigAttribute>();
-                //var category = parentCategory ?? attr.Category;
-                //Console.WriteLine($"prop {prop.Name}-{prop.PropertyType.Name} simple? : {IsSimpleType(prop.PropertyType)}");
-                // 如果是嵌套对象（类类型）
-                if (!IsSimpleType(prop.PropertyType))
-                {
-                    var nestedObj = prop.GetValue(obj);
-                    if (nestedObj != null)
-                    {
-                        // 创建分组容器（如 GroupBox）
-                        // Tag - Provides a convenient place to store any type of object.
-                        // The Tag property is not used by the .NET Framework.
-                        // Instead, you use it to store associated data(like a data
-                        // object or a string with a unique ID).
-                        var groupBox = new GroupBox
-                        {
-                            Text = attr.DisplayName,
-                            Left = 10,
-                            Top = topPos,
-                            Padding = new Padding(10),
-                            Width = 800,
-                            Tag = nestedObj,
-                        };
-                        parentContainer.Controls.Add(groupBox);
-                        // 递归生成嵌套对象的控件
-                        GenerateControlsForObject(nestedObj, groupBox, parentCategory);
-                        topPos += groupBox.Controls.Count * 30;
-                    }
-                }
-                else
-                {
-                    // 生成简单类型的控件（原有逻辑）
-
-                    var attr2 = prop.GetCustomAttribute<ConfigAttribute>();
-                    var lbl = new Label
-                    {
-                        Text = attr2.DisplayName,
-                        Top = topPos,
-                        Left = 10,
-                        Width = 150,
-                    };
-                    parentContainer.Controls.Add(lbl);
-                    //Returns the property value of a specified object.
-                    var ctl = CreateControlForType(prop.PropertyType, prop.GetValue(obj), prop);
-                    ctl.Top = topPos;
-                    ctl.Left = 170;
-                    ctl.Tag = prop;
-
-                    if (ctl is TextBox txt)
-                    {
-                        ctl.Width = 500;
-                        //txt.TextAlign = HorizontalAlignment.Right;
-                    }
-                    if (ctl is TextBox && attr.DisplayName == "Connection String") ctl.Width = 600;
-                    if (ctl is ComboBox cmb) cmb.Width = 400;
-                    parentContainer.Controls.Add(ctl);
-                    if (!string.IsNullOrEmpty(attr.Description))
-                    {
-                        var toolTip = new ToolTip();
-                        toolTip.SetToolTip(lbl, attr.Description);
-                        toolTip.SetToolTip(ctl, attr.Description);
-                    }
-                    topPos += ctl.Height + 10;
-                }
-            }
-        }
-
         private bool IsSimpleType(Type type)
         { //new
             return type.IsPrimitive ||
@@ -306,7 +252,6 @@ namespace ConfigTool.ConfigUI
                    type.IsEnum ||
                    type == typeof(DateTime);
         }
-
         public void ApplyChanges()
         {
             foreach (TabPage tabPage in _tabControl.TabPages)
@@ -314,8 +259,7 @@ namespace ConfigTool.ConfigUI
                 ApplyChangesToObject(_configObject, tabPage);
             }
         }
-
-        private void ApplyChangesToObject(object obj, Control parentContainer)
+        private void ApplyChangesToObject(object configObj, Control parentContainer)
         {
             foreach (Control ctrl in parentContainer.Controls)
             {
@@ -334,7 +278,7 @@ namespace ConfigTool.ConfigUI
                     {
                         object value = txtPath.Text;
                         //Console.WriteLine($"setting value {value}");
-                        prop.SetValue(obj, value);
+                        prop.SetValue(configObj, value);
                     }
                 }
                 else if (ctrl.Tag is PropertyInfo prop)
@@ -342,11 +286,10 @@ namespace ConfigTool.ConfigUI
                     // 设置属性值（原有逻辑）
                     object value = GetControlValue(ctrl);
                     //Console.WriteLine($"setting value {value}");
-                    prop.SetValue(obj, value);
+                    prop.SetValue(configObj, value);
                 }
             }
         }
-
         private object GetControlValue(Control ctrl)
         {
             if (ctrl is CheckBox cb) return cb.Checked;
@@ -356,7 +299,6 @@ namespace ConfigTool.ConfigUI
             if (ctrl is TextBox txt) return txt.Text;
             return null;
         }
-
         private Control CreatePathSelector(PropertyInfo prop, string initialPath)
         {
             var panel = new Panel { Height = 20, Width = 600 };
@@ -380,7 +322,7 @@ namespace ConfigTool.ConfigUI
             };
             var btnBrowse = new Button
             {
-                Text = "浏览...",
+                Text = "Browse...",
                 Dock = DockStyle.Right,
                 Width = 80,
                 Height = 20,
@@ -415,16 +357,5 @@ namespace ConfigTool.ConfigUI
             return panel;
         }
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // DynamicPanel
-            // 
-            this.BackColor = System.Drawing.SystemColors.Control;
-            this.Name = "DynamicPanel";
-            this.ResumeLayout(false);
-
-        }
     }
 }

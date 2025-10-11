@@ -18,31 +18,18 @@ namespace ConfigTool.ConfigUI
             Text = $"Configuraion - {configFile}";
             var saveButton = new Button
             {
-                Text = "保存配置",
+                Text = "Save",
                 Dock = DockStyle.Bottom,
                 Height = 30,
-                Font = new Font("Microsoft Sans Serif", 12, FontStyle.Bold),
+                Font = new Font("Microsoft Sans Serif", 9, FontStyle.Regular),
                 BackColor = Color.LightSeaGreen
             };
             saveButton.Click += (s, e) => panel.ApplyChanges();
-
+            WinFormFormatters.FormatButtonsAsBootstrapInfo(saveButton);
             Controls.Add(panel);
             Controls.Add(saveButton);
             Size = new Size(1000, 600);
         }
 
-        private void InitializeComponent()
-        {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NestedConfigPanelForm));
-            this.SuspendLayout();
-            // 
-            // NestedConfigPanelForm
-            // 
-            this.ClientSize = new Size(282, 253);
-            this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "NestedConfigPanelForm";
-            this.ResumeLayout(false);
-
-        }
     }
 }

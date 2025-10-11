@@ -10,7 +10,7 @@ namespace ConfigTool.ConfigUI
         private readonly object _configObject;
 
         private TableLayoutPanel tableLayoutPanel1;
-        private TabedPanel dynamicPanel2;
+        private TabedPanel configPanel;
         private GroupBox groupBox1;
         private Button btnCancel;
         private Button btnSave;
@@ -29,21 +29,19 @@ namespace ConfigTool.ConfigUI
             configPath = System.IO.Path.GetFullPath(configPath);
             Text = $"Configuraion - {configPath}";
             //************************
-            dynamicPanel2.Bind(configObj);// 根据传入的配置对象动态生成UI
+            configPanel.Bind(configObj);// 根据传入的配置对象动态生成UI
             //************************
         }
 
         private void btnSave_Click(object sender, System.EventArgs e)
         {
-            dynamicPanel2.ApplyChanges();
+            configPanel.ApplyChanges();
             _configService.Save(_configPath, (ConfigBase)_configObject);
-            this.DialogResult = DialogResult.OK; // 标准成功结果
-            Close();
         }
 
         private void btnCancel_Click(object sender, System.EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 
@@ -51,7 +49,7 @@ namespace ConfigTool.ConfigUI
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TabedPanelForm));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.dynamicPanel2 = new ConfigTool.ConfigUI.TabedPanel();
+            this.configPanel = new ConfigTool.ConfigUI.TabedPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -63,7 +61,7 @@ namespace ConfigTool.ConfigUI
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.Controls.Add(this.dynamicPanel2, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.configPanel, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -76,13 +74,13 @@ namespace ConfigTool.ConfigUI
             // 
             // dynamicPanel2
             // 
-            this.dynamicPanel2.AutoScroll = true;
-            this.dynamicPanel2.BackColor = System.Drawing.Color.Azure;
-            this.dynamicPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dynamicPanel2.Location = new System.Drawing.Point(3, 3);
-            this.dynamicPanel2.Name = "dynamicPanel2";
-            this.dynamicPanel2.Size = new System.Drawing.Size(826, 594);
-            this.dynamicPanel2.TabIndex = 0;
+            this.configPanel.AutoScroll = true;
+            this.configPanel.BackColor = System.Drawing.Color.Azure;
+            this.configPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.configPanel.Location = new System.Drawing.Point(3, 3);
+            this.configPanel.Name = "dynamicPanel2";
+            this.configPanel.Size = new System.Drawing.Size(826, 594);
+            this.configPanel.TabIndex = 0;
             // 
             // groupBox1
             // 
