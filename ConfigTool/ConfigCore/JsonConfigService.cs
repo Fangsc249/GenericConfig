@@ -7,7 +7,12 @@ namespace ConfigTool.ConfigCore
     {
         public T Load<T>(string path) where T : ConfigBase, new()
         {
-            if (!File.Exists(path)) return new T();
+            if (!File.Exists(path))
+            {
+                T t = new T();
+                this.Save(path, t);
+                return t;
+            }
 
             string json = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<T>(json);
