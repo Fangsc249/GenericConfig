@@ -13,7 +13,9 @@ namespace ConfigTool.ConfigCore
             if (!File.Exists(path))
             {
                 Console.WriteLine($"配置文件 {path} 不存在，使用默认配置。");
-                return new T();
+                T t = new T();
+                this.Save(path, t); // 保存默认配置到文件
+                return t;
             }
 
             // 读取YAML文件内容
