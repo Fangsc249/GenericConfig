@@ -21,8 +21,7 @@ namespace ConfigTool.ConfigCore
             T oldValue = field;
             field = value;
             OnPropertyChanged(propertyName);
-
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Property changed [{propertyName.PadRight(15, ' ')}] : {oldValue} \u27A4 {value}");//2025-10-11 这个方法竟然一直没有使用
+            //Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Property changed [{propertyName.PadRight(15, ' ')}] : {oldValue} \u27A4 {value}");//2025-10-11 这个方法竟然一直没有使用
             return true;
         }
     }
