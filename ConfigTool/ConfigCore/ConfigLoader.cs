@@ -54,5 +54,5 @@ namespace ConfigTool.ConfigCore
             new NestedConfigPanelForm(configService, config, configFile, typeof(T).Name).ShowDialog();
         }
     }
-
+    
 }

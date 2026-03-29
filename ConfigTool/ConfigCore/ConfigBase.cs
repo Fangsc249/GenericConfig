@@ -25,4 +25,5 @@ namespace ConfigTool.ConfigCore
             return true;
         }
     }
+    
 }

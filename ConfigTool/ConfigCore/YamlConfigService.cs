@@ -45,4 +45,5 @@ namespace ConfigTool.ConfigCore
             File.WriteAllText(path, yaml);
         }
     }
+    
 }

@@ -6,4 +6,6 @@
 
         void Save<T>(string path, T config) where T : ConfigBase;
     }
+
+    
 }
