@@ -1,6 +1,6 @@
 ﻿using ConfigTool.ConfigUI;
 using System;
-using System.Windows.Forms;
+using System.IO;
 
 namespace ConfigTool.ConfigCore
 {
@@ -9,22 +9,24 @@ namespace ConfigTool.ConfigCore
         public static string ConfigFolder = AppDomain.CurrentDomain.BaseDirectory;
         public static T YamlConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.yaml";
+            //string configFile = $@"{ConfigFolder}\{typeof(T).Name}.yaml";
+            string configFile = Path.Combine(ConfigFolder, $"{typeof(T).Name}.yaml");
+            Console.WriteLine("Loading config from: {0}", configFile);
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<T>(configFile);
             return config;
         }
         public static void TabedPanelYamlConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.yaml";
+            string configFile = $@"{ConfigFolder}\{typeof(T).Name}.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<T>(configFile);
             new TabedPanelForm(configService, configFile, config).ShowDialog();
-            
+
         }
         public static void NestedPanelYamlConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.yaml";
+            string configFile = $@"{ConfigFolder}\{typeof(T).Name}.yaml";
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<T>(configFile);
             new NestedConfigPanelForm(configService, config, configFile, typeof(T).Name).ShowDialog();
@@ -33,7 +35,7 @@ namespace ConfigTool.ConfigCore
         //***********************************
         public static T JsonConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.json";
+            string configFile = $@"{ConfigFolder}\{typeof(T).Name}.json";
             IConfigService configService = new JsonConfigService();
             var config = configService.Load<T>(configFile);
             return config;
@@ -41,18 +43,18 @@ namespace ConfigTool.ConfigCore
 
         public static void TabedPanelJsonConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.json";
+            string configFile = $@"{ConfigFolder}\{typeof(T).Name}.json";
             IConfigService configService = new JsonConfigService();
             var config = configService.Load<T>(configFile);
             new TabedPanelForm(configService, configFile, config).ShowDialog();
         }
         public static void NestedPanelJsonConfig<T>() where T : ConfigBase, new()
         {
-            string configFile = $"{ConfigFolder}\\{typeof(T).Name}.json";
+            string configFile = $@"{ConfigFolder}\{typeof(T).Name}.json";
             IConfigService configService = new JsonConfigService();
             var config = configService.Load<T>(configFile);
             new NestedConfigPanelForm(configService, config, configFile, typeof(T).Name).ShowDialog();
         }
     }
-    
+
 }
