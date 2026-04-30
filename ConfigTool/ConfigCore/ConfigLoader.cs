@@ -9,9 +9,8 @@ namespace ConfigTool.ConfigCore
         public static string ConfigFolder = AppDomain.CurrentDomain.BaseDirectory;
         public static T YamlConfig<T>() where T : ConfigBase, new()
         {
-            //string configFile = $@"{ConfigFolder}\{typeof(T).Name}.yaml";
             string configFile = Path.Combine(ConfigFolder, $"{typeof(T).Name}.yaml");
-            Console.WriteLine("Loading config from: {0}", configFile);
+            //Console.WriteLine("Loading config from: {0}", configFile);
             IConfigService configService = new YamlConfigService();
             var config = configService.Load<T>(configFile);
             return config;
