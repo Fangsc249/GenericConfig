@@ -12,5 +12,4 @@ C:\Dev\VS\GenericConfig\DemoApp1\bin\Debug\AppConfig.pdb
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\AppConfig.exe
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\AppConfig.pdb
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.AssemblyReference.cache
-C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\AppConfig.exe.config
 C:\Dev\VS\GenericConfig\DemoApp1\obj\Debug\DemoApp1.csproj.Up2Date
